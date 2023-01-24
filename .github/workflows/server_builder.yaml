@@ -1,0 +1,24 @@
+name: server_builder
+
+on:
+  pull_request:
+  push:
+    branches:
+    - main
+    - build_test
+
+jobs:
+  Ubuntu:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    -name: Install Go
+    -uses: actions/setup-go@v3
+    -with:
+      go-version: 1.19.x
+    
+    -name: Build
+    run: go build ../../OTA_server/
