@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"net/http"
 )
 
 func main() {
-	fmt.Println("The OTA file handler")
+	fileServer := http.FileServer(http.Dir("./static"))
+	http.Handle("/", fileServer)
+
 }
