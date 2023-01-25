@@ -3,11 +3,16 @@
 #include <WiFi.h>
 
 #include "credentials.h"
+#include "serverdetails.h"
 
 // function prototypes
 void scanNetworks();
 void connnectWiFi();
 void displayWiFiDetails();
+void connectToServer();
+
+// Objects
+WiFiClient client;
 
 void setup() {
   // set up serial
@@ -20,6 +25,9 @@ void setup() {
   connnectWiFi();
   // 3. List wi-fi connection details
   displayWiFiDetails();
+
+  // Connect to server
+  connectToServer();
 
   // Built in LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -64,4 +72,20 @@ void displayWiFiDetails() {
   Serial.println(" dbm");
   Serial.print("Device Ip Address: ");
   Serial.println(ip);
+}
+void connectToServer() {
+  if (WiFi.status() == WL_CONNECTED) {
+    while (!client.connect(server_URL, server_port)) {
+      Serial.print("Attempting connection to: ");
+      Serial.println(server_URL);
+      delay(2000);
+    }
+    Serial.print("Successfully connected to: ");
+    Serial.println(server_URL);
+
+  } else {
+    Serial.println("_________________________________");
+    Serial.println("Fatal Error. Wifi connection Lost");
+    Serial.println(".................................");
+  }
 }
