@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version:"3.10.8"
+          python-version: "3.10.8"
       
       - name: Install Linux dependancies
         run : |
@@ -34,4 +34,4 @@ jobs:
       - name: Build OTA_client
         run: cd OTA_client && platformio run
 
-        
+
