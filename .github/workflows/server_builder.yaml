@@ -23,12 +23,14 @@ jobs:
     - name: Build
       run: cd OTA_server && go build 
     
-    -name: Create_release
-     uses: svenstaro/upload-release-action@v1-release
-     with:
-      repo_token: ${{ secrets.GITHUB_TOKEN }}
-      file: OTA_server/OTA_server.bin
-      tag: ${{ github.ref }}
-      overwrite: true
-      file_glob: true
+    - name: Create_release
+      uses: svenstaro/upload-release-action@v1-release
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: OTA_server/OTA_server.bin
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+
+
       
