@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <HTTPClient.h>
 #include <Update.h>
 #include <WiFi.h>
 
@@ -12,7 +13,11 @@ void displayWiFiDetails();
 void connectToServer();
 
 // Objects
-WiFiClient client;
+HTTPClient http;
+
+// variables
+unsigned long last_time = 0;
+unsigned long timer_delay = 5000;
 
 void setup() {
   // set up serial
@@ -75,11 +80,14 @@ void displayWiFiDetails() {
 }
 void connectToServer() {
   if (WiFi.status() == WL_CONNECTED) {
-    while (!client.connect(server_URL, server_port)) {
-      Serial.print("Attempting connection to: ");
-      Serial.println(server_URL);
-      delay(2000);
-    }
+    http.begin(server_URL_path);
+    int http_response_code = 0;
+    do {
+      http_response_code = http.GET();
+      Serial.print("http Response code:");
+      Serial.println(http_response_code);
+      delay(3000);
+    } while (http_response_code != 200);
     Serial.print("Successfully connected to: ");
     Serial.println(server_URL);
 

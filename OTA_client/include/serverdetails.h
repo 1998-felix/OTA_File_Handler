@@ -3,9 +3,10 @@
 
 #include <WiFi.h>
 
-//IPAddress server_ip(198,0,0,0);
-uint16_t server_port = 80;
-const char* server_URL = "google.com";
+IPAddress server_ip(198,168,0,185);
+uint16_t server_port = 8080;
+const char* server_URL = "theohserver.com";
+const char* server_URL_path = "http://192.168.0.185:8080/";
 
 
 
