@@ -24,7 +24,7 @@ jobs:
       run: cd OTA_server && ls -al
     
     - name: Build
-      run: go build
+      run: go build -v ./..
     
     - name: Create_release
       uses: svenstaro/upload-release-action@v1-release
