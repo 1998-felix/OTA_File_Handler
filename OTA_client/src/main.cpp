@@ -13,6 +13,7 @@ void displayWiFiDetails();
 void connectToServer();
 void flashBinary();
 void updateFirmware(uint8_t* data, size_t len);
+bool getUserInput();
 
 // Objects
 HTTPClient http;
@@ -26,7 +27,9 @@ int current_length = 0;
 void setup() {
   // set up serial
   Serial.begin(115200);
+  Serial.println("ESP32 Started");
 
+  Serial.println("Running Wi-Fi start up procedures");
   // WI-FI Protocols
   // 1. Scan and display networks
   scanNetworks();
@@ -34,13 +37,17 @@ void setup() {
   connnectWiFi();
   // 3. List wi-fi connection details
   displayWiFiDetails();
+  Serial.println("...................................................");
+  Serial.println("Do you wish to update the device firmware?...........");
+  Serial.println("y/n");
+  if (getUserInput()) {
+    // Connect to server
+    connectToServer();
 
-  // Connect to server
-  connectToServer();
-
-  // Download and flash content
-  flashBinary();
-
+    // Download and flash content
+    flashBinary();
+  } else
+    Serial.println("Update rejected!");
 
   // Built in LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -98,7 +105,7 @@ void connectToServer() {
     } while (http_response_code != 200);
     Serial.print("Successfully connected to: ");
     Serial.println(server_URL);
-   // http.end(); kills wifi for some reason. To be investigated.
+    // http.end(); kills wifi for some reason. To be investigated.
 
   } else {
     Serial.println("_________________________________");
@@ -106,59 +113,68 @@ void connectToServer() {
     Serial.println(".................................");
   }
 }
-void flashBinary(){
-  if(WiFi.status() == WL_CONNECTED){
+void flashBinary() {
+  if (WiFi.status() == WL_CONNECTED) {
     http.begin(server_bin_path);
     int http_server_response = http.GET();
-    if(http_server_response == 200){
+    if (http_server_response == 200) {
       total_length = http.getSize();
-      
-    int len = total_length;
-    Update.begin(UPDATE_SIZE_UNKNOWN);
-    Serial.printf("FW Size: %u\n", total_length);
 
-    uint8_t buff[128] = {0};
-    WiFiClient * stream = http.getStreamPtr();
+      int len = total_length;
+      Update.begin(UPDATE_SIZE_UNKNOWN);
+      Serial.printf("FW Size: %u\n", total_length);
 
-    Serial.println("Updating firmware ....");
+      uint8_t buff[128] = {0};
+      WiFiClient* stream = http.getStreamPtr();
 
-    while(http.connected() && (len > 0 || len == -1)){
-      size_t size = stream->available();
-      if(size){
-        //read
-        int c = stream->readBytes(buff,((size > sizeof(buff))? sizeof(buff):size));
+      Serial.println("Updating firmware ....");
 
-        updateFirmware(buff,c);
-        if(len> 0){
-          len -= c;
+      while (http.connected() && (len > 0 || len == -1)) {
+        size_t size = stream->available();
+        if (size) {
+          // read
+          int c = stream->readBytes(
+              buff, ((size > sizeof(buff)) ? sizeof(buff) : size));
+
+          updateFirmware(buff, c);
+          if (len > 0) {
+            len -= c;
+          }
         }
+        delay(1);
       }
-      delay(1);
-    }
 
-
-    }else{
+    } else {
       Serial.print("Invalid response:");
       Serial.println(http_server_response);
     }
 
-  }else{
+  } else {
     Serial.println("_________________________________");
     Serial.println("Fatal Error.Wifi connection lost");
     Serial.println("..................................");
   }
-
 }
-void updateFirmware(uint8_t* data, size_t len){
+void updateFirmware(uint8_t* data, size_t len) {
   Update.write(data, len);
   current_length += len;
-  
+
   Serial.print(".");
 
-  if(current_length != total_length) return;
+  if (current_length != total_length) return;
   Update.end(true);
-  Serial.printf("\nUpdate Success,Total Size: %u\n Rebooting...\n",current_length);
+  Serial.printf("\nUpdate Success,Total Size: %u\n Rebooting...\n",
+                current_length);
 
   ESP.restart();
+}
 
+bool getUserInput() {
+  while (Serial.available() == 0) {
+    ;
+  }
+  char user_input = Serial.read();
+  Serial.printf("You entered '%c'\n", user_input);
+  bool result = user_input == 'y' ? true : false;
+  return result;
 }
