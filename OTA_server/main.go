@@ -10,7 +10,7 @@ import (
 var staticDir = filepath.FromSlash("/home/oh/Documents/Projects/OTA_File_Handler/OTA_server/static")
 
 func handleBin(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, filepath.Join(staticDir, "/cv.pdf"))
+	http.ServeFile(w, r, filepath.Join(staticDir, "/firmware.bin"))
 }
 
 func handlehtml(w http.ResponseWriter, r *http.Request) {
